@@ -1,23 +1,45 @@
-ld33 = {};
+ld33 = function () {
+  this.scrollSpeed = 3;
+  this.dt = 0;
+};
+
+ld33.prototype.update = function () {
+  this.dt = this.getDT();
+};
 
 // For setting velocity.
-ld33.pixelsPerSecond = function (px) {
+ld33.prototype.pixelsPerSecond = function (px) {
   return px * 60;
 }
 
 // For setting acceleration.
-ld33.pixelsPerSecondSquared = function (px) {
+ld33.prototype.pixelsPerSecondSquared = function (px) {
   return px * 60 * 60;
-}
+};
 
-var game = new Phaser.Game(400, 240, Phaser.AUTO, 'ld33-game', { preload: preload, create: create, update: update, render: render });
+ld33.prototype.scrollBG = function () {
+  bg.position.x -= this.pixelsPerSecond(this.scrollSpeed) * this.dt;
+  if (bg.position.x <= -400) {bg.position.x += 400}
+};
+
+ld33.prototype.getDT = function () {
+  return game.time.elapsed/1000;
+};
+
+ld33.prototype.speedUpScrollSpeed = function (incr) {
+  if (!incr) {incr = 1/60;}
+  this.scrollSpeed += incr * this.dt;
+};
+
+var ld = new ld33();
+var game = new Phaser.Game(720, 240, Phaser.AUTO, 'ld33-game', { preload: preload, create: create, update: update, render: render });
 
 function preload() {
 
     game.load.image('ui', 'img/chaser-ui-154x64.png');
     game.load.image('fx', 'img/chaser-fx-154x64.png');
     game.load.image('sq', 'img/chaser-sq-154x64.png');
-    game.load.image('background', 'assets/games/starstruck/background2.png');
+    game.load.image('background', 'img/bg/bgidea.png');
 
 }
 
@@ -32,7 +54,8 @@ function create() {
 
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    //bg = game.add.tileSprite(0, 0, 800, 600, 'background');
+    bg = game.add.tileSprite(0, 0, game.world.bounds.width * 2,
+          game.world.bounds.height, 'background');
 
     game.physics.arcade.gravity.y = 300;
 
@@ -53,6 +76,10 @@ function create() {
 
 function update() {
 
+  //scrolling BG.
+  ld.update();
+  ld.scrollBG();
+  ld.speedUpScrollSpeed();
     // game.physics.arcade.collide(player, layer);
 
     player.body.velocity.x = 0;
@@ -64,8 +91,8 @@ function update() {
         if (facing != 'left')
         {
             //player.animations.play('left');
-            player.scale.x = -1;
-            facing = 'left';
+            //player.scale.x = -1;
+            //facing = 'left';
         }
     }
     else if (cursors.right.isDown)
@@ -99,7 +126,13 @@ function update() {
 
     if (jumpButton.isDown && player.body.onFloor() && game.time.now > jumpTimer)
     {
-        player.body.velocity.y = ld33.pixelsPerSecond(-10);
+        player.body.velocity.y = ld.pixelsPerSecond(-10);
+        jumpTimer = game.time.now + 750;
+    }
+
+    if (jumpAltButton.isDown && player.body.onFloor() && game.time.now > jumpTimer)
+    {
+        player.body.velocity.y = ld.pixelsPerSecond(-10);
         jumpTimer = game.time.now + 750;
     }
 

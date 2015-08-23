@@ -1,10 +1,13 @@
 var Character = function (spr) {
 	this.hp = 1000;
 	if (!spr) {spr = game.add.sprite(32, 160, 'ui');}
-	if (!spr.body) {game.physics.enable(spr, Phaser.Physics.ARCADE);}
+	if (!spr.body) {this.initSpritePhysics(spr);}
 	this.sprite = spr;
+  
   this.canJump = true;
+  this.canFire = true;
 	
+  this.initMovementVars();
 	this.initTimer();
 	this.hookUpdateToSprite(this.sprite);
 	
@@ -36,6 +39,19 @@ Character.prototype.initTimer = function () {
 	this.timer.start();
 };
 
+Character.prototype.initMovementVars = function () {
+	this.moveSpeed = ld.pixelsPerSecond(5);
+	this.jumpStrength = ld.pixelsPerSecond(-10);
+};
+
+Character.prototype.initSpritePhysics = function (spr) {
+  game.physics.enable(spr, Phaser.Physics.ARCADE);
+  spr.anchor.x = 0.5;
+  spr.body.collideWorldBounds = true;
+  spr.body.gravity.y = 1000;
+  spr.body.maxVelocity.y = 500;
+};
+
 Character.prototype.handlePlatformCollision = function () {
   	this.canJump = true;
 };
@@ -43,7 +59,7 @@ Character.prototype.handlePlatformCollision = function () {
 Character.prototype.handleInput = function () {
     if (cursors.left.isDown)
     {
-        this.sprite.body.velocity.x = -150;
+        this.sprite.body.velocity.x = -this.moveSpeed;
 
         if (facing != 'left')
         {
@@ -54,7 +70,7 @@ Character.prototype.handleInput = function () {
     }
     else if (cursors.right.isDown)
     {
-        this.sprite.body.velocity.x = 150;
+        this.sprite.body.velocity.x = this.moveSpeed;
 
         if (facing != 'right')
         {
@@ -81,11 +97,18 @@ Character.prototype.handleInput = function () {
         }
     }
 
-    if ((jumpAltButton.isDown || jumpButton.isDown) && this.canJump )
+    if ((btnJump.isDown || btnJumpAlt.isDown) && this.canJump )
+    {
+      
+      this.sprite.body.velocity.y = this.jumpStrength;
+      //jumpTimer = game.time.now + 750;
+      this.canJump = false;
+    }
+    
+    if (btnAttack.isDown && this.canFire )
     {
       
       this.sprite.body.velocity.y = ld.pixelsPerSecond(-10);
-      console.log(this.sprite.body.velocity);
       //jumpTimer = game.time.now + 750;
       this.canJump = false;
     }

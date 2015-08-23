@@ -74,8 +74,9 @@ var player;
 var facing = 'left';
 var jumpTimer = 0;
 var cursors;
-var jumpButton;
-var jumpAltButton;
+var btnJump;
+var btnJumpAlt;
+var btnAttack;
 var bg;
 
 function create() {
@@ -92,7 +93,10 @@ function create() {
     game.physics.arcade.gravity.y = 300;
 
     //player = game.add.sprite(32, 160, 'ui');
-    player = new Character();
+    allySq = new Character(game.add.sprite(192, 100, 'sq'));
+    allyFx = new Character(game.add.sprite(0, 130, 'fx'));
+    player = new Character(game.add.sprite(128, 160, 'ui'));
+    
 
     player.sprite.anchor.x = 0.5;
     player.sprite.body.collideWorldBounds = true;
@@ -101,8 +105,9 @@ function create() {
     //player.sprite.body.setSize(20, 32, 5, 16);
 
     cursors = game.input.keyboard.createCursorKeys();
-    jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    jumpAltButton = game.input.keyboard.addKey(Phaser.Keyboard.Z);
+    btnJumpAlt = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    btnJump = game.input.keyboard.addKey(Phaser.Keyboard.Z);
+    btnAttack = game.input.keyboard.addKey(Phaser.Keyboard.X);
     
     ld.addPlatforms();
 

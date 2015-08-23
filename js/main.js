@@ -18,7 +18,8 @@ ld33.prototype.pixelsPerSecondSquared = function (px) {
 };
 
 ld33.prototype.scrollBG = function () {
-  bg.position.x -= this.pixelsPerSecond(this.scrollSpeed) * this.dt;
+  //bg.position.x -= Math.floor(this.scrollSpeed);
+  bg.body.velocity.x = -ld.pixelsPerSecond(this.scrollSpeed);
   if (bg.position.x <= -400) {bg.position.x += 400}
 };
 
@@ -56,6 +57,10 @@ function create() {
 
     bg = game.add.tileSprite(0, 0, game.world.bounds.width * 2,
           game.world.bounds.height, 'background');
+    game.physics.enable(bg, Phaser.Physics.ARCADE);
+    bg.body.allowGravity = false;
+    bg.body.immovable = true;
+    bg.body.maxVelocity.x = ld.pixelsPerSecond(16);
 
     game.physics.arcade.gravity.y = 300;
 

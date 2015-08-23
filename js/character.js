@@ -34,6 +34,7 @@ Character.prototype.hookUpdateToSprite = function (spr) {
 	}
 };
 
+// Initiators
 Character.prototype.initTimer = function () {
 	this.timer = game.time.create(false);
 	this.timer.start();
@@ -44,6 +45,18 @@ Character.prototype.initMovementVars = function () {
 	this.jumpStrength = ld.pixelsPerSecond(-10);
 };
 
+Character.prototype.initMovementVarsSq = function () {
+	this.moveSpeed = ld.pixelsPerSecond(5);
+	this.jumpStrength = ld.pixelsPerSecond(-10);
+  this.hp = 500;
+};
+
+Character.prototype.initMovementVarsFx = function () {
+	this.moveSpeed = ld.pixelsPerSecond(5);
+	this.jumpStrength = ld.pixelsPerSecond(-10);
+  this.hp = 300;
+};
+
 Character.prototype.initSpritePhysics = function (spr) {
   game.physics.enable(spr, Phaser.Physics.ARCADE);
   spr.anchor.x = 0.5;
@@ -52,6 +65,7 @@ Character.prototype.initSpritePhysics = function (spr) {
   spr.body.maxVelocity.y = 500;
 };
 
+// Handlers
 Character.prototype.handlePlatformCollision = function () {
   	this.canJump = true;
 };
@@ -113,3 +127,14 @@ Character.prototype.handleInput = function () {
       this.canJump = false;
     }
 }
+
+// Utilities and Actions
+
+Character.prototype.takeDamage = function (dmg) {
+  	this.hp -= dmg;
+};
+
+Character.prototype.die = function (dmg) {
+  	this.hp = 0;
+    game.sound.play('sfxDie');
+};

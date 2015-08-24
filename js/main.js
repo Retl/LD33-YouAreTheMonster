@@ -2,6 +2,7 @@ var LD33 = function () {
   this.scrollSpeed = 4;
   this.scrollSpeedMax = 16;
   this.dt = 0;
+  this.input;
 };
 
 LD33.prototype.update = function () {
@@ -86,6 +87,9 @@ function preload() {
   game.load.image('ui', 'img/chaser-ui-154x64.png');
   game.load.image('fx', 'img/chaser-fx-154x64.png');
   game.load.image('sq', 'img/chaser-sq-154x64.png');
+  
+  game.load.image('bullet', 'img/white.png');
+  game.load.image('barrier', 'img/barrier.png');
 
   game.load.image('road_plat', 'img/road_platform.png');
 
@@ -94,6 +98,7 @@ function preload() {
   // Audio
   game.load.audio('sfxDie', 'sfx/Explosion3.wav');
   game.load.audio('sfxGet', 'sfx/Get.wav');
+  game.load.audio('sfxJump', 'sfx/Jump6.wav');
   game.load.audio('sfxBulletHit', 'sfx/Hit_Hurt2.wav');
   game.load.audio('sfxBoom', 'sfx/Hit_Hurt3.wav');
   game.load.audio('sfxBarrier', 'sfx/PlaceBarrier.wav');
@@ -104,6 +109,7 @@ function preload() {
 var player;
 var allySq;
 var allyFx;
+var enemy;
 var facing = 'left';
 var jumpTimer = 0;
 var cursors;
@@ -128,9 +134,18 @@ function create() {
   //player = game.add.sprite(32, 160, 'ui');
   allySq = new Character(game.add.sprite(192, 100, 'sq'));
   allySq.initMovementVarsSq();
+  allySq.attack();
   allyFx = new Character(game.add.sprite(0, 130, 'fx'));
   allyFx.initMovementVarsFx();
+  allyFx.attack();
+  enemy = new Character(game.add.sprite(720, 160, 'ui'));
+  enemy.initMovementVarsEnemy();
+  enemy.sprite.scale.x = -1;
+  enemy.attack();
+  
   player = new Character(game.add.sprite(128, 160, 'ui'));
+  
+  
 
 
   player.sprite.anchor.x = 0.5;
@@ -145,6 +160,7 @@ function create() {
   btnAttack = game.input.keyboard.addKey(Phaser.Keyboard.X);
 
   ld.addPlatforms();
+  ld.input = new Input();
 
 }
 
@@ -163,7 +179,7 @@ function render() {
   // game.debug.body(player);
   //game.debug.bodyInfo(player, 16, 24);
   if (player) {
-    game.debug.text("NMEE: " + player.hp, 16, 24);
+    game.debug.text("NMEE: " + enemy.hp, 16, 24);
     game.debug.text("UILI: " + player.hp, 16, 48);
     game.debug.text("SQLI: " + allySq.hp, 16, 72);
     game.debug.text("FXLI: " + allyFx.hp, 16, 96);

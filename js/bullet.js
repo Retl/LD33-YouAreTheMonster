@@ -1,12 +1,12 @@
 var Bullet = function (spr) {
 	this.hp = 1000;
-	if (!spr) {spr = game.add.sprite(32, 160, 'ui');}
-	if (!spr.body) {game.physics.enable(spr, Phaser.Physics.ARCADE);}
+	if (!spr) {spr = game.add.sprite(0, 8, 'bullet');}
+	if (!spr.body) {this.initSpritePhysics(spr);}
 	this.sprite = spr;
-  this.canJump = true;
 	
+  this.initMovementVars();
 	this.initTimer();
-	this.hookUpdateToSprite(this.sprite);
+	//this.hookUpdateToSprite(this.sprite);
 	
 	//return this;
 }
@@ -20,82 +20,73 @@ Bullet.prototype.update = function () {
 	}
 	
   game.physics.arcade.collide(this.sprite, ld.platforms, this.handlePlatformCollision, null, this);
-	this.handleInput();
-	
+	//this.handleInput();
+  this.performHorizontalMovement();
+  this.performAttacks();
 };
 
 Bullet.prototype.hookUpdateToSprite = function (spr) {
 	spr.character = this;
 	spr.update = function () {
-		this.Bullet.update();
+		this.character.update();
 	}
 };
 
+// Initiators
 Bullet.prototype.initTimer = function () {
 	this.timer = game.time.create(false);
 	this.timer.start();
 };
 
-Bullet.prototype.handlePlatformCollision = function () {
-  	this.canJump = true;
+Bullet.prototype.initMovementVars = function () {
+  this.fastFallVelocity = ld.pixelsPerSecond(-4);
+	this.moveSpeed = ld.pixelsPerSecond(5);
+	this.jumpStrength = ld.pixelsPerSecond(-10);
 };
 
-Bullet.prototype.handleInput = function () {
-    if (cursors.left.isDown)
-    {
-        this.sprite.body.velocity.x = -150;
+Bullet.prototype.initMovementVarsSq = function () {
+	this.moveSpeed = ld.pixelsPerSecond(5);
+	this.jumpStrength = ld.pixelsPerSecond(-10);
+  this.hp = 500;
+};
 
-        if (facing != 'left')
-        {
-            //player.animations.play('left');
-            //player.scale.x = -1;
-            //facing = 'left';
-        }
-    }
-    else if (cursors.right.isDown)
-    {
-        this.sprite.body.velocity.x = 150;
+Bullet.prototype.initMovementVarsFx = function () {
+	this.moveSpeed = ld.pixelsPerSecond(5);
+	this.jumpStrength = ld.pixelsPerSecond(-10);
+  this.hp = 300;
+};
 
-        if (facing != 'right')
-        {
-            this.sprite.scale.x = 1;
-            facing = 'right';
-        }
-    }
-    else
-    {
-        if (facing != 'idle')
-        {
-            //player.animations.stop();
+Bullet.prototype.initMovementVarsEnemy = function () {
+	this.moveSpeed = ld.pixelsPerSecond(5);
+	this.jumpStrength = ld.pixelsPerSecond(-10);
+  this.hp = 2800*3;
+};
 
-            if (facing == 'left')
-            {
-                //player.frame = 0;
-            }
-            else
-            {
-                //player.frame = 5;
-            }
+Bullet.prototype.initSpritePhysics = function (spr) {
+  game.physics.enable(spr, Phaser.Physics.ARCADE);
+  spr.anchor.x = 0.5;
+  //spr.body.collideWorldBounds = true;
+  spr.body.gravity.y = 0;
+  spr.body.allowGravity = false;
+  spr.body.maxVelocity.y = 500;
+};
 
-            facing = 'idle';
-        }
-    }
+// Handlers
+Bullet.prototype.handleCharacterCollision = function () {
+  	//this.canJump = true;
+};
 
-    if ((btnJump.isDown || btnJumpAlt.isDown) && this.canJump )
-    {
-      
-      this.sprite.body.velocity.y = ld.pixelsPerSecond(-10);
-      //console.log(this.sprite.body.velocity);
-      //jumpTimer = game.time.now + 750;
-      this.canJump = false;
-    }
-    
-    if (btnAttack.isDown && this.canFire )
-    {
-      
-      this.sprite.body.velocity.y = ld.pixelsPerSecond(-10);
-      //console.log(this.sprite.body.velocity);
-      //jumpTimer = game.time.now + 750;
-      this.canJump = false;
-    }
-}
+// Actions
+Bullet.prototype.jump = function () {
+  if (this.canJump) {
+    this.sprite.body.velocity.y = this.jumpStrength;
+    this.canJump = false;
+    game.sound.play('sfxJump');
+  }
+};
+
+Bullet.prototype.fastFall = function () {
+  if (this.sprite.body.velocity.y < this.fastFallVelocity){
+    this.sprite.body.velocity.y = this.fastFallVelocity;
+  }
+};
